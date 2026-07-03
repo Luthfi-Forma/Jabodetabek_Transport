@@ -1,4 +1,5 @@
 import { formatSim } from '../sim/clock.js';
+import { t } from './i18n.js';
 
 export function createClockDisplay() {
   const el = document.createElement('div');
@@ -6,8 +7,8 @@ export function createClockDisplay() {
   document.body.appendChild(el);
 
   return {
-    update(t, nVehicles) {
-      el.textContent = `${formatSim(t)} WIB · ${nVehicles} kereta`;
+    update(time, nVehicles) {
+      el.textContent = `${formatSim(time)} WIB · ${nVehicles} ${t('trains')}`;
     },
   };
 }

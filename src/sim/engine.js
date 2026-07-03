@@ -52,9 +52,12 @@ export function createEngine(linesJson, linesGeojson, timetables) {
     }
   }
 
+  const tripIndex = {};
   for (const tt of timetables) {
     const L = lines[tt.lineId];
-    if (L) L.trips.push(...tt.trips);
+    if (!L) continue;
+    L.trips.push(...tt.trips);
+    for (const tr of tt.trips) tripIndex[tr.id] = { trip: tr, line: L };
   }
 
   // km sepanjang jalur -> [lon, lat] + arah derajat (binary search vertex)
@@ -129,5 +132,18 @@ export function createEngine(linesJson, linesGeojson, timetables) {
     return out;
   }
 
-  return { positionsAt, lines };
+  // detail satu kereta (untuk panel info): tujuan + stasiun berikutnya
+  function vehicleInfo(id, t) {
+    const entry = tripIndex[id];
+    if (!entry) return null;
+    const { trip, line } = entry;
+    const next = trip.stops.find((st) => st.a > t);
+    return {
+      lineId: line.id,
+      dest: line.stationName[trip.dest] ?? trip.dest,
+      nextStation: next ? line.stationName[next.s] : null,
+    };
+  }
+
+  return { positionsAt, vehicleInfo, lines };
 }
