@@ -11,3 +11,18 @@ body {
   position: absolute;
   inset: 0;
 }
+
+.sim-clock {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(11, 11, 18, 0.8);
+  color: #e8e8f0;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+}
