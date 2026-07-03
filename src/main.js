@@ -5,6 +5,8 @@ import { addStationLayer } from './map/stationLayer.js';
 import { createEngine } from './sim/engine.js';
 import { simSeconds, serviceDay, setClock } from './sim/clock.js';
 import { createVehicles2d } from './render/vehicles2d.js';
+import { createVehicles3d } from './render/vehicles3d.js';
+import { CONFIG } from './config.js';
 import { createClockDisplay } from './ui/clockDisplay.js';
 import { createLegend } from './ui/legend.js';
 import { createInfoPanel } from './ui/infoPanel.js';
@@ -60,7 +62,15 @@ map.on('load', async () => {
 
   createLegend(linesJson, { onToggle: applyVisibility });
 
-  const vehicles = createVehicles2d(map);
+  function showVehicleInfo(v) {
+    const info = engine.vehicleInfo(v.id, simSeconds());
+    if (info) infoPanel.showVehicle(info);
+  }
+
+  const vehicles =
+    CONFIG.vehicleRenderer === '3d'
+      ? createVehicles3d(map, { onPick: showVehicleInfo })
+      : createVehicles2d(map);
 
   // klik stasiun -> panel info
   map.on('click', 'stations-circle', (e) => {
@@ -68,13 +78,14 @@ map.on('load', async () => {
     infoPanel.showStation(name, stationIndex[name] ?? []);
   });
 
-  // klik kereta -> panel info
-  map.on('click', 'vehicles-core', (e) => {
-    const info = engine.vehicleInfo(e.features[0].properties.id, simSeconds());
-    if (info) infoPanel.showVehicle(info);
-  });
+  // klik kereta 2D -> panel info (renderer 3D punya picking sendiri)
+  if (CONFIG.vehicleRenderer !== '3d') {
+    map.on('click', 'vehicles-core', (e) =>
+      showVehicleInfo({ id: e.features[0].properties.id })
+    );
+  }
 
-  for (const hoverable of ['stations-circle', 'vehicles-core']) {
+  for (const hoverable of ['stations-circle']) {
     map.on('mouseenter', hoverable, () => {
       map.getCanvas().style.cursor = 'pointer';
     });
@@ -88,13 +99,19 @@ map.on('load', async () => {
   window.__map = map;
   window.__engine = engine;
 
-  function frame() {
-    const t = simSeconds();
-    const positions = engine.positionsAt(t).filter((v) =>
-      visibleLines.has(v.lineId)
-    );
-    vehicles.update(positions);
-    clockDisplay.update(t, positions.length);
+  // posisi kendaraan diperbarui 30x/detik (cukup mulus, hemat GPU);
+  // peta sendiri tetap bebas merender 60 fps
+  let lastVehicleUpdate = 0;
+  function frame(now) {
+    if (now - lastVehicleUpdate >= 33) {
+      lastVehicleUpdate = now;
+      const t = simSeconds();
+      const positions = engine.positionsAt(t).filter((v) =>
+        visibleLines.has(v.lineId)
+      );
+      vehicles.update(positions);
+      clockDisplay.update(t, positions.length);
+    }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
