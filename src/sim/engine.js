@@ -87,13 +87,19 @@ export function createEngine(linesJson, linesGeojson, timetables) {
     return [lon, lat, bearing];
   }
 
-  // posisi semua kendaraan aktif pada detik-simulasi t
-  function positionsAt(t) {
+  // posisi semua kendaraan aktif pada detik-simulasi t.
+  // Dini hari (t < 04:00) juga dicek sebagai t+24 jam supaya kereta
+  // yang jadwalnya melewati tengah malam (detik > 86400) tetap muncul.
+  function positionsAt(tRaw) {
     const out = [];
+    const candidates = tRaw < 14400 ? [tRaw, tRaw + 86400] : [tRaw];
     for (const L of Object.values(lines)) {
       for (const trip of L.trips) {
         const stops = trip.stops;
-        if (t < stops[0].d || t > stops[stops.length - 1].a) continue;
+        const t = candidates.find(
+          (tc) => tc >= stops[0].d && tc <= stops[stops.length - 1].a
+        );
+        if (t === undefined) continue;
 
         let km = null;
         let moving = false;
@@ -133,10 +139,12 @@ export function createEngine(linesJson, linesGeojson, timetables) {
   }
 
   // detail satu kereta (untuk panel info): tujuan + stasiun berikutnya
-  function vehicleInfo(id, t) {
+  function vehicleInfo(id, tRaw) {
     const entry = tripIndex[id];
     if (!entry) return null;
     const { trip, line } = entry;
+    const t =
+      tRaw < 14400 && trip.stops[0].d > tRaw ? tRaw + 86400 : tRaw;
     const next = trip.stops.find((st) => st.a > t);
     return {
       lineId: line.id,
