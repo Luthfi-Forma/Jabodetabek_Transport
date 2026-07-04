@@ -5,6 +5,7 @@ import { t, getLang, toggleLang, onLangChange } from './i18n.js';
 
 export function createLegend(linesJson, { onToggle }) {
   const visible = new Set(linesJson.lines.map((l) => l.id));
+  let collapsed = false;
 
   const panel = document.createElement('div');
   panel.className = 'legend';
@@ -17,13 +18,19 @@ export function createLegend(linesJson, { onToggle }) {
     const head = document.createElement('div');
     head.className = 'legend-head';
     const title = document.createElement('span');
-    title.textContent = t('legendTitle');
+    title.className = 'legend-title';
+    title.textContent = `${collapsed ? '▸' : '▾'} ${t('legendTitle')}`;
+    title.addEventListener('click', () => {
+      collapsed = !collapsed;
+      render();
+    });
     const langBtn = document.createElement('button');
     langBtn.className = 'lang-btn';
     langBtn.textContent = t('langButton');
     langBtn.addEventListener('click', toggleLang);
     head.append(title, langBtn);
     panel.appendChild(head);
+    if (collapsed) return;
 
     for (const line of linesJson.lines) {
       const row = document.createElement('label');

@@ -17,7 +17,10 @@ function hexToRgb(hex, alpha = 255) {
 }
 
 export function createVehicles3d(map, { onPick }) {
-  const overlay = new MapboxOverlay({ interleaved: true, layers: [] });
+  // interleaved:false = deck menggambar di kanvas sendiri di atas peta.
+  // Jauh lebih ringan di GPU terintegrasi daripada mode interleaved
+  // (yang menyinkronkan state GL dengan MapLibre setiap frame).
+  const overlay = new MapboxOverlay({ interleaved: false, layers: [] });
   map.addControl(overlay);
   const mesh = new CubeGeometry();
 
@@ -35,6 +38,7 @@ export function createVehicles3d(map, { onPick }) {
           getFillColor: (d) => hexToRgb(d.color, 70),
           getRadius: sizeScale * 3.5,
           radiusUnits: 'meters',
+          radiusMaxPixels: 12,
           pickable: false,
         }),
         new SimpleMeshLayer({
@@ -47,7 +51,9 @@ export function createVehicles3d(map, { onPick }) {
           // bearing = derajat searah jarum jam dari utara;
           // sumbu panjang balok (x) diputar mengikuti arah rel
           getOrientation: (d) => [0, 90 - d.bearing, 0],
-          getScale: [2.6, 0.9, 0.9],
+          // bus BRT lebih kecil daripada rangkaian kereta
+          getScale: (d) =>
+            d.mode === 'brt' ? [1.1, 0.55, 0.55] : [2.6, 0.9, 0.9],
           pickable: true,
           onClick: (info) => {
             if (info.object) onPick(info.object);

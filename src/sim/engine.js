@@ -56,8 +56,24 @@ export function createEngine(linesJson, linesGeojson, timetables) {
   for (const tt of timetables) {
     const L = lines[tt.lineId];
     if (!L) continue;
-    L.trips.push(...tt.trips);
-    for (const tr of tt.trips) tripIndex[tr.id] = { trip: tr, line: L };
+    let trips = tt.trips ?? [];
+    // format ringkas (BRT): pola berhenti sekali + daftar jam berangkat,
+    // dikembangkan jadi trip biasa di sini
+    if (tt.compact) {
+      trips = tt.compact.flatMap((block) =>
+        block.starts.map((t0, i) => ({
+          id: `${tt.lineId}-${tt.service}-${block.direction}-${i}`,
+          dest: block.dest,
+          stops: block.stops.map((o) => ({
+            s: o.s,
+            a: t0 + o.ao,
+            d: t0 + o.do,
+          })),
+        }))
+      );
+    }
+    L.trips.push(...trips);
+    for (const tr of trips) tripIndex[tr.id] = { trip: tr, line: L };
   }
 
   // km sepanjang jalur -> [lon, lat] + arah derajat (binary search vertex)
