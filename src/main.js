@@ -1,11 +1,9 @@
 import './style.css';
 import { initMap } from './map/initMap.js';
-import { addLineLayers } from './map/lineLayers.js';
+import { addLineLayers, LINE_LAYER_BASE_FILTERS } from './map/lineLayers.js';
 import { addStationLayer } from './map/stationLayer.js';
 import { createEngine } from './sim/engine.js';
 import { simSeconds, serviceDay, setClock } from './sim/clock.js';
-import { createVehicles2d } from './render/vehicles2d.js';
-import { createVehicles3d } from './render/vehicles3d.js';
 import { CONFIG } from './config.js';
 import { createClockDisplay } from './ui/clockDisplay.js';
 import { createLegend } from './ui/legend.js';
@@ -20,8 +18,9 @@ async function loadJson(url) {
 const map = initMap('map');
 
 map.on('load', async () => {
-  const [linesGeo, stationsGeo, linesJson] = await Promise.all([
+  const [linesGeo, segmentsGeo, stationsGeo, linesJson] = await Promise.all([
     loadJson('/data/lines.geojson'),
+    loadJson('/data/lines_segments.geojson'),
     loadJson('/data/stations.geojson'),
     loadJson('/data/lines.json'),
   ]);
@@ -31,8 +30,12 @@ map.on('load', async () => {
     linesJson.lines.map((l) => loadJson(`/data/timetables/${l.id}_${day}.json`))
   );
 
-  addLineLayers(map, linesGeo);
+  addLineLayers(map, segmentsGeo);
   addStationLayer(map, stationsGeo);
+
+  const elevatedAll = segmentsGeo.features.filter(
+    (f) => f.properties.level === 1
+  );
 
   const engine = createEngine(linesJson, linesGeo, timetables);
   const clockDisplay = createClockDisplay();
@@ -45,18 +48,26 @@ map.on('load', async () => {
     (stationIndex[name] ??= []).push({ lineId, code });
   }
 
-  // saring jalur yang ditampilkan (dipakai legenda)
+  // saring jalur yang ditampilkan (dipakai legenda);
+  // lapisan garis punya filter dasar per-ketinggian yang harus dipertahankan
   let visibleLines = new Set(linesJson.lines.map((l) => l.id));
   const filteredLayers = [
-    'lines-glow', 'lines-core', 'stations-circle', 'stations-label',
-    'vehicles-glow', 'vehicles-core',
+    'lines-glow', 'lines-core', 'lines-elevated-shadow', 'lines-tunnel',
+    'stations-circle', 'stations-label', 'vehicles-glow', 'vehicles-core',
   ];
 
   function applyVisibility(visible) {
     visibleLines = visible;
-    const filter = ['in', ['get', 'lineId'], ['literal', [...visible]]];
+    const inExpr = ['in', ['get', 'lineId'], ['literal', [...visible]]];
     for (const layerId of filteredLayers) {
-      if (map.getLayer(layerId)) map.setFilter(layerId, filter);
+      if (!map.getLayer(layerId)) continue;
+      const base = LINE_LAYER_BASE_FILTERS[layerId];
+      map.setFilter(layerId, base ? ['all', base, inExpr] : inExpr);
+    }
+    if (vehicles.setElevatedPaths) {
+      vehicles.setElevatedPaths(
+        elevatedAll.filter((f) => visible.has(f.properties.lineId))
+      );
     }
   }
 
@@ -67,10 +78,16 @@ map.on('load', async () => {
     if (info) infoPanel.showVehicle(info);
   }
 
+  // dynamic import: deck.gl (dipakai renderer 3D) jadi chunk terpisah yang
+  // hanya diunduh browser kalau benar-benar dipakai, dan tidak menunda
+  // render peta + jalur yang sudah tampil lebih dulu di atas
   const vehicles =
     CONFIG.vehicleRenderer === '3d'
-      ? createVehicles3d(map, { onPick: showVehicleInfo })
-      : createVehicles2d(map);
+      ? await import('./render/vehicles3d.js').then((m) =>
+          m.createVehicles3d(map, { onPick: showVehicleInfo })
+        )
+      : await import('./render/vehicles2d.js').then((m) => m.createVehicles2d(map));
+  if (vehicles.setElevatedPaths) vehicles.setElevatedPaths(elevatedAll);
 
   // klik stasiun -> panel info
   map.on('click', 'stations-circle', (e) => {

@@ -83,8 +83,9 @@ def main():
     for line in lines:
         params = params_all.get(line["id"])
         if not params:
-            print(f"{line['id']}: tidak ada service_params, lewati")
-            problems += 1
+            # normal untuk jalur non-headway (mis. BRT mode="brt" yang
+            # jadwalnya dibangun terpisah oleh build_brt.py) -- bukan masalah
+            print(f"{line['id']}: tidak ada service_params (mode={line.get('mode')}), lewati")
             continue
         for service in ("weekday", "weekend"):
             trips = make_trips(line, params, service)

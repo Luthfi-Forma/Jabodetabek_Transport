@@ -29,6 +29,19 @@ LAT0 = -6.2  # lintang acuan proyeksi lokal (Jakarta)
 R_EARTH = 6371008.8
 MAX_STATION_OFFSET_M = 300  # stasiun lebih jauh dari ini dari rel = dicurigai
 
+# ketinggian visual per kelas jalur (meter): layang, permukaan, bawah tanah
+ALT_BY_LEVEL = {1: 25.0, 0: 0.0, -1: -20.0}
+
+
+def way_level(tags):
+    """Kelas vertikal sebuah way OSM: 1 layang, -1 terowongan, 0 permukaan."""
+    if tags.get("tunnel") in ("yes", "building_passage") or \
+            tags.get("covered") == "yes":
+        return -1
+    if tags.get("bridge") in ("yes", "viaduct") or tags.get("bridge") == "aqueduct":
+        return 1
+    return 0
+
 
 def to_xy(lon, lat):
     x = math.radians(lon) * R_EARTH * math.cos(math.radians(LAT0))
@@ -83,14 +96,18 @@ def process_line(meta, raw):
         elif el["type"] == "relation":
             relation = el
 
-    # 1) graf rel dari way anggota (peron dikecualikan)
+    # 1) graf rel dari way anggota (peron dikecualikan);
+    #    tiap sisi mengingat kelas vertikalnya (layang/permukaan/terowongan)
     graph = {}
+    edge_level = {}
 
-    def add_edge(a, b):
+    def add_edge(a, b, level):
         na, nb = nodes[a], nodes[b]
         w = dist_m((na["lon"], na["lat"]), (nb["lon"], nb["lat"]))
         graph.setdefault(a, []).append((b, w))
         graph.setdefault(b, []).append((a, w))
+        key = (a, b) if a < b else (b, a)
+        edge_level[key] = level
 
     for m in relation["members"]:
         if m["type"] != "way" or "platform" in m.get("role", ""):
@@ -98,8 +115,9 @@ def process_line(meta, raw):
         w = ways.get(m["ref"])
         if not w:
             continue
+        lvl = way_level(w.get("tags", {}))
         for i in range(len(w["nodes"]) - 1):
-            add_edge(w["nodes"][i], w["nodes"][i + 1])
+            add_edge(w["nodes"][i], w["nodes"][i + 1], lvl)
 
     # jembatani node yang berdekatan (<= 20 m) tapi tak tersambung —
     # data OSM sering tanpa wesel/crossover antar rel ganda, sehingga
@@ -194,19 +212,27 @@ def process_line(meta, raw):
         anchor[st["code"]] = nid
 
     codes = [s["code"] for s in meta["stations"] if s["code"] in anchor]
-    coords, stations, broken = [], [], 0
+    coords, levels, stations, broken = [], [], [], 0
     cum_km = 0.0
+    prev_nid = [None]
 
     def push_coord(nid):
+        # level sisi (prev_nid -> nid); sisi jembatan-kedekatan (tak dikenal)
+        # mewarisi level sebelumnya supaya tak ada "celah" turun-naik palsu
         nonlocal cum_km
         n = nodes[nid]
         c = [round(n["lon"], 6), round(n["lat"], 6)]
         if coords:
             prev = coords[-1]
             if prev == c:
+                prev_nid[0] = nid
                 return
             cum_km += dist_m(prev, c) / 1000.0
+            key = (prev_nid[0], nid) if prev_nid[0] < nid else (nid, prev_nid[0])
+            lvl = edge_level.get(key)
+            levels.append(levels[-1] if lvl is None and levels else (lvl or 0))
         coords.append(c)
+        prev_nid[0] = nid
 
     push_coord(anchor[codes[0]])
     meta_by_code = {s["code"]: s for s in meta["stations"]}
@@ -226,6 +252,11 @@ def process_line(meta, raw):
                          "lon": round(n["lon"], 6), "lat": round(n["lat"], 6),
                          "distAlong": round(cum_km, 4)})
 
+    # levels paralel dengan sisi; jadikan paralel dengan vertex
+    levels = ([levels[0]] + levels) if levels else [0] * len(coords)
+    for i, c in enumerate(coords):
+        c.append(ALT_BY_LEVEL[levels[i]])
+
     order = [s["distAlong"] for s in stations]
     if order != sorted(order):
         print(f"  !! {line_id}: distAlong tidak monoton naik: {order}")
@@ -240,12 +271,31 @@ def process_line(meta, raw):
                   f"(garis lurus cuma {straight:.1f} km) — rute memutar?")
             broken += 1
 
+    # ringkasan panjang per kelas (info verifikasi)
+    km_by_level = {-1: 0.0, 0: 0.0, 1: 0.0}
+    for i in range(len(coords) - 1):
+        km_by_level[levels[i + 1]] += dist_m(coords[i][:2], coords[i + 1][:2]) / 1000
+
     return {
         "coords": coords,
+        "levels": levels,
+        "km_by_level": {k: round(v, 1) for k, v in km_by_level.items()},
         "length_km": round(cum_km, 3),
         "stations": stations,
         "n_problems": len(unmatched) + broken,
     }
+
+
+def split_by_level(coords, levels):
+    """Pecah polyline jadi run per level; vertex batas masuk ke dua run."""
+    runs = []
+    start = 0
+    for i in range(1, len(coords)):
+        if levels[i] != levels[start]:
+            runs.append((levels[start], coords[start:i + 1]))
+            start = i
+    runs.append((levels[start], coords[start:]))
+    return [r for r in runs if len(r[1]) >= 2]
 
 
 def main():
@@ -254,7 +304,7 @@ def main():
     )
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    line_features, station_features, lines_meta_out = [], [], []
+    line_features, segment_features, station_features, lines_meta_out = [], [], [], []
     problems = 0
 
     for meta in meta_all["lines"]:
@@ -268,8 +318,10 @@ def main():
         raw = json.loads(raw_path.read_text(encoding="utf-8"))
         result = process_line(meta, raw)
         problems += result["n_problems"]
+        kb = result["km_by_level"]
         print(f"  {len(result['coords'])} titik, {result['length_km']} km, "
-              f"{len(result['stations'])}/{len(meta['stations'])} stasiun")
+              f"{len(result['stations'])}/{len(meta['stations'])} stasiun | "
+              f"layang {kb[1]} km · permukaan {kb[0]} km · bawah tanah {kb[-1]} km")
 
         line_features.append({
             "type": "Feature",
@@ -280,6 +332,13 @@ def main():
             },
             "geometry": {"type": "LineString", "coordinates": result["coords"]},
         })
+        for lvl, seg in split_by_level(result["coords"], result["levels"]):
+            segment_features.append({
+                "type": "Feature",
+                "properties": {"lineId": line_id, "color": meta["color"],
+                               "mode": meta["mode"], "level": lvl},
+                "geometry": {"type": "LineString", "coordinates": seg},
+            })
         for s in result["stations"]:
             station_features.append({
                 "type": "Feature",
@@ -307,6 +366,9 @@ def main():
 
     (OUT_DIR / "lines.geojson").write_text(
         json.dumps({"type": "FeatureCollection", "features": line_features}),
+        encoding="utf-8")
+    (OUT_DIR / "lines_segments.geojson").write_text(
+        json.dumps({"type": "FeatureCollection", "features": segment_features}),
         encoding="utf-8")
     (OUT_DIR / "stations.geojson").write_text(
         json.dumps({"type": "FeatureCollection", "features": station_features}),

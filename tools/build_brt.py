@@ -29,6 +29,10 @@ CORRIDORS = [str(i) for i in range(1, 15)]
 DWELL_SEC = 20
 MIN_HEADWAY = 120  # detik; batas bawah headway efektif gabungan
 
+# koridor yang jalurnya melayang (GTFS tidak menyimpan ketinggian):
+# 13 = flyover CSW Ciledug–Tendean
+ELEVATED_M = {"13": 18.0}
+
 LAT0 = -6.2
 R_EARTH = 6371008.8
 
@@ -41,8 +45,8 @@ def to_xy(lon, lat):
 
 
 def dist_km(a, b):
-    ax, ay = to_xy(*a)
-    bx, by = to_xy(*b)
+    ax, ay = to_xy(*a[:2])
+    bx, by = to_xy(*b[:2])
     return math.hypot(bx - ax, by - ay) / 1000.0
 
 
@@ -63,13 +67,13 @@ def project_forward(coords, cum, pt, min_km):
     jadi proyeksi bebas bisa 'nyangkut' ke arah pulang. Dengan kursor
     maju (min_km = posisi halte sebelumnya) hasilnya selalu berurutan.
     """
-    px, py = to_xy(*pt)
+    px, py = to_xy(*pt[:2])
     best = (float("inf"), min_km)
     for i in range(len(coords) - 1):
         if cum[i + 1] < min_km:
             continue
-        ax, ay = to_xy(*coords[i])
-        bx, by = to_xy(*coords[i + 1])
+        ax, ay = to_xy(*coords[i][:2])
+        bx, by = to_xy(*coords[i + 1][:2])
         dx, dy = bx - ax, by - ay
         l2 = dx * dx + dy * dy
         if l2 == 0:
@@ -110,7 +114,7 @@ def main():
 
     freq = read("frequencies.txt")
 
-    line_features, station_features, lines_meta = [], [], []
+    line_features, segment_features, station_features, lines_meta = [], [], [], []
 
     for sn in CORRIDORS:
         route = next(r for r in routes.values() if r["route_short_name"] == sn)
@@ -128,13 +132,14 @@ def main():
             print(f"{line_id}: tidak ada trip dengan stop_times+shape, lewati")
             continue
 
-        # geometri dari shape
+        # geometri dari shape (+ ketinggian untuk koridor layang)
+        alt = ELEVATED_M.get(sn, 0.0)
         pts = shapes[rep0["shape_id"]]
         coords = []
         for p in pts:
             c = [round(float(p["shape_pt_lon"]), 6), round(float(p["shape_pt_lat"]), 6)]
-            if not coords or coords[-1] != c:
-                coords.append(c)
+            if not coords or coords[-1][:2] != c:
+                coords.append(c + [alt])
         cum = [0.0]
         for i in range(1, len(coords)):
             cum.append(cum[-1] + dist_km(coords[i - 1], coords[i]))
@@ -228,6 +233,12 @@ def main():
             "properties": {"lineId": line_id, "color": color, "mode": "brt"},
             "geometry": {"type": "LineString", "coordinates": coords},
         })
+        segment_features.append({
+            "type": "Feature",
+            "properties": {"lineId": line_id, "color": color, "mode": "brt",
+                           "level": 1 if alt > 0 else 0},
+            "geometry": {"type": "LineString", "coordinates": coords},
+        })
         for st in stations:
             station_features.append({
                 "type": "Feature",
@@ -259,6 +270,7 @@ def main():
         (OUT / path).write_text(json.dumps(data), encoding="utf-8")
 
     merge("lines.geojson", line_features)
+    merge("lines_segments.geojson", segment_features)
     merge("stations.geojson", station_features)
     lj = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
     lj["lines"] = [l for l in lj["lines"] if not l["id"].startswith("TJ")]

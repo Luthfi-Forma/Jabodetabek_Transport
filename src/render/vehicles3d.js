@@ -1,10 +1,12 @@
 // Renderer kendaraan 3D (deck.gl di atas MapLibre):
 // balok memanjang searah rel + lingkaran "glow" di bawahnya.
-// Bisa diklik (picking) untuk menampilkan info kereta.
+// Kendaraan mengikuti ketinggian jalur (layang/permukaan/bawah tanah);
+// yang di bawah tanah digambar lebih redup. Jalur layang ikut digambar
+// sebagai garis 3D melayang (PathLayer) di sini juga.
 
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
-import { ScatterplotLayer } from '@deck.gl/layers';
+import { ScatterplotLayer, PathLayer } from '@deck.gl/layers';
 import { CubeGeometry } from '@luma.gl/engine';
 
 function hexToRgb(hex, alpha = 255) {
@@ -24,6 +26,13 @@ export function createVehicles3d(map, { onPick }) {
   map.addControl(overlay);
   const mesh = new CubeGeometry();
 
+  // garis jalur layang (statis; diganti hanya saat filter jalur berubah)
+  let elevatedFeatures = [];
+
+  function setElevatedPaths(features) {
+    elevatedFeatures = features;
+  }
+
   function update(vehicles) {
     // ukuran dasar dalam meter; diperbesar saat zoom jauh agar tetap terlihat
     const zoom = map.getZoom();
@@ -31,11 +40,23 @@ export function createVehicles3d(map, { onPick }) {
 
     overlay.setProps({
       layers: [
+        new PathLayer({
+          id: 'elevated-paths',
+          data: elevatedFeatures,
+          getPath: (f) => f.geometry.coordinates,
+          getColor: (f) => hexToRgb(f.properties.color, 200),
+          getWidth: 5,
+          widthUnits: 'meters',
+          widthMinPixels: 1.5,
+          jointRounded: true,
+          capRounded: true,
+          pickable: false,
+        }),
         new ScatterplotLayer({
           id: 'vehicles-3d-glow',
           data: vehicles,
-          getPosition: (d) => d.lngLat,
-          getFillColor: (d) => hexToRgb(d.color, 70),
+          getPosition: (d) => [d.lngLat[0], d.lngLat[1], Math.max(d.alt, 0)],
+          getFillColor: (d) => hexToRgb(d.color, d.alt < 0 ? 35 : 70),
           getRadius: sizeScale * 3.5,
           radiusUnits: 'meters',
           radiusMaxPixels: 12,
@@ -46,8 +67,9 @@ export function createVehicles3d(map, { onPick }) {
           data: vehicles,
           mesh,
           sizeScale,
-          getPosition: (d) => [d.lngLat[0], d.lngLat[1], 6],
-          getColor: (d) => hexToRgb(d.color),
+          // kendaraan menempel di ketinggian jalurnya; bawah tanah = negatif
+          getPosition: (d) => [d.lngLat[0], d.lngLat[1], d.alt + 5],
+          getColor: (d) => hexToRgb(d.color, d.alt < 0 ? 140 : 255),
           // bearing = derajat searah jarum jam dari utara;
           // sumbu panjang balok (x) diputar mengikuti arah rel
           getOrientation: (d) => [0, 90 - d.bearing, 0],
@@ -64,5 +86,5 @@ export function createVehicles3d(map, { onPick }) {
     });
   }
 
-  return { update };
+  return { update, setElevatedPaths };
 }

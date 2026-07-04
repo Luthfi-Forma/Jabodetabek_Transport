@@ -85,6 +85,7 @@ def classify(line_str, route_str):
 
 
 def main():
+    force = "--force" in sys.argv
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     meta_all = json.loads(
         (ROOT / "data" / "curated" / "lines_meta.json").read_text(encoding="utf-8")
@@ -93,7 +94,7 @@ def main():
 
     # 1) daftar stasiun comuline
     st_cache = RAW_DIR / "stations.json"
-    if st_cache.exists():
+    if st_cache.exists() and not force:
         stations = json.loads(st_cache.read_text(encoding="utf-8"))
     else:
         stations = curl_json(f"{BASE}/v1/station")["data"]
@@ -137,7 +138,7 @@ def main():
     schedules = {}
     for i, api_id in enumerate(sorted(api_ids)):
         cache = RAW_DIR / f"sched_{api_id}.json"
-        if cache.exists():
+        if cache.exists() and not force:
             schedules[api_id] = json.loads(cache.read_text(encoding="utf-8"))
         else:
             print(f"  unduh {api_id} ({i + 1}/{len(api_ids)}) ...")

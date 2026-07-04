@@ -89,10 +89,11 @@ export function createEngine(linesJson, linesGeojson, timetables) {
     }
     const segLen = cum[hi] - cum[lo] || 1e-9;
     const f = (target - cum[lo]) / segLen;
-    const [x1, y1] = coords[lo];
-    const [x2, y2] = coords[hi];
+    const [x1, y1, z1 = 0] = coords[lo];
+    const [x2, y2, z2 = 0] = coords[hi];
     const lon = x1 + f * (x2 - x1);
     const lat = y1 + f * (y2 - y1);
+    const alt = z1 + f * (z2 - z1);
     const bearing =
       (Math.atan2(
         (x2 - x1) * Math.cos((lat * Math.PI) / 180),
@@ -100,7 +101,7 @@ export function createEngine(linesJson, linesGeojson, timetables) {
       ) *
         180) /
       Math.PI;
-    return [lon, lat, bearing];
+    return [lon, lat, alt, bearing];
   }
 
   // posisi semua kendaraan aktif pada detik-simulasi t.
@@ -137,7 +138,7 @@ export function createEngine(linesJson, linesGeojson, timetables) {
         }
         if (km === null) continue;
 
-        const [lon, lat, bearing] = pointAt(L, km);
+        const [lon, lat, alt, bearing] = pointAt(L, km);
         out.push({
           id: trip.id,
           lineId: L.id,
@@ -145,6 +146,7 @@ export function createEngine(linesJson, linesGeojson, timetables) {
           mode: L.mode,
           dest: L.stationName[trip.dest] ?? trip.dest,
           lngLat: [lon, lat],
+          alt,
           // kereta arah balik memakai geometri yang sama tapi mundur
           bearing: moving === -1 ? bearing + 180 : bearing,
           moving: Boolean(moving),
