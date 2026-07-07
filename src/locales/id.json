@@ -1,0 +1,10 @@
+{
+  "trains": "kereta",
+  "legendTitle": "Jalur",
+  "langButton": "EN",
+  "station": "Stasiun",
+  "destination": "Tujuan",
+  "nextStation": "Stasiun berikutnya",
+  "arrived": "Tiba di tujuan",
+  "close": "Tutup"
+}

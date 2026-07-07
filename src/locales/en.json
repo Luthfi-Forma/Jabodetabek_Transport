@@ -1,0 +1,10 @@
+{
+  "trains": "trains",
+  "legendTitle": "Lines",
+  "langButton": "ID",
+  "station": "Station",
+  "destination": "Destination",
+  "nextStation": "Next station",
+  "arrived": "Arriving at terminus",
+  "close": "Close"
+}
