@@ -1,6 +1,27 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
-data/raw/
 .vite/
-*.log
+
+# Raw source data (generated/downloaded)
+data/raw/
+
+# Python
 __pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Claude Code
+.claude/worktrees/
+
+# OS
+.DS_Store
+Thumbs.db
