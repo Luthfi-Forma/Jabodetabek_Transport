@@ -1,0 +1,225 @@
+{
+  "comment": "Sumber kebenaran hasil kurasi manual dari Peta Integrasi FDTJ 2026-06. Urutan stasiun HARUS searah dengan relation OSM yang dipilih di tools/osm_relations.json. Field opsional per stasiun: osmName (nama di OSM jika beda), lon+lat (override koordinat manual).",
+  "lines": [
+    {
+      "id": "M",
+      "mode": "metro",
+      "operator": "MRT Jakarta",
+      "name": { "id": "MRT Lin Utara–Selatan", "en": "MRT North–South Line" },
+      "color": "#D42E12",
+      "stations": [
+        { "code": "M-01", "name": "Lebak Bulus" },
+        { "code": "M-02", "name": "Fatmawati" },
+        { "code": "M-03", "name": "Cipete Raya" },
+        { "code": "M-04", "name": "Haji Nawi" },
+        { "code": "M-05", "name": "Blok A" },
+        { "code": "M-06", "name": "Blok M" },
+        { "code": "M-07", "name": "ASEAN" },
+        { "code": "M-08", "name": "Senayan" },
+        { "code": "M-09", "name": "Istora" },
+        { "code": "M-10", "name": "Bendungan Hilir" },
+        { "code": "M-11", "name": "Setiabudi" },
+        { "code": "M-12", "name": "Dukuh Atas" },
+        { "code": "M-13", "name": "Bundaran HI" }
+      ]
+    },
+    {
+      "id": "S",
+      "mode": "lrt",
+      "operator": "LRT Jakarta",
+      "name": { "id": "LRT Jakarta Lin Selatan", "en": "LRT Jakarta Southern Line" },
+      "color": "#F47B20",
+      "stations": [
+        { "code": "S-01", "name": "Pegangsaan Dua" },
+        { "code": "S-02", "name": "Boulevard Utara" },
+        { "code": "S-03", "name": "Boulevard Selatan" },
+        { "code": "S-04", "name": "Pulomas" },
+        { "code": "S-05", "name": "Equestrian" },
+        { "code": "S-06", "name": "Velodrome" }
+      ]
+    },
+    {
+      "id": "CB",
+      "mode": "lrt",
+      "operator": "LRT Jabodebek",
+      "name": { "id": "LRT Jabodebek Lin Cibubur", "en": "LRT Jabodebek Cibubur Line" },
+      "color": "#6CBE45",
+      "stations": [
+        { "code": "CB-01", "name": "Dukuh Atas" },
+        { "code": "CB-02", "name": "Setiabudi" },
+        { "code": "CB-03", "name": "Rasuna Said" },
+        { "code": "CB-04", "name": "Kuningan" },
+        { "code": "CB-05", "name": "Pancoran" },
+        { "code": "CB-06", "name": "Cikoko" },
+        { "code": "CB-07", "name": "Ciliwung" },
+        { "code": "CB-08", "name": "Cawang" },
+        { "code": "CB-09", "name": "TMII", "osmName": "Taman Mini" },
+        { "code": "CB-10", "name": "Kampung Rambutan" },
+        { "code": "CB-11", "name": "Ciracas" },
+        { "code": "CB-12", "name": "Harjamukti" }
+      ]
+    },
+    {
+      "id": "BK",
+      "mode": "lrt",
+      "operator": "LRT Jabodebek",
+      "name": { "id": "LRT Jabodebek Lin Bekasi", "en": "LRT Jabodebek Bekasi Line" },
+      "color": "#2E5AA8",
+      "stations": [
+        { "code": "BK-01", "name": "Dukuh Atas" },
+        { "code": "BK-02", "name": "Setiabudi" },
+        { "code": "BK-03", "name": "Rasuna Said" },
+        { "code": "BK-04", "name": "Kuningan" },
+        { "code": "BK-05", "name": "Pancoran" },
+        { "code": "BK-06", "name": "Cikoko" },
+        { "code": "BK-07", "name": "Ciliwung" },
+        { "code": "BK-08", "name": "Cawang" },
+        { "code": "BK-09", "name": "Halim" },
+        { "code": "BK-10", "name": "Jatibening Baru" },
+        { "code": "BK-11", "name": "Cikunir 1" },
+        { "code": "BK-12", "name": "Cikunir 2" },
+        { "code": "BK-13", "name": "Bekasi Barat" },
+        { "code": "BK-14", "name": "Jati Mulya", "osmName": "Jatimulya" }
+      ]
+    },
+    {
+      "id": "B",
+      "mode": "commuter",
+      "operator": "KAI Commuter",
+      "name": { "id": "KRL Lin Bogor", "en": "Commuter Rail Bogor Line" },
+      "color": "#E0001B",
+      "stations": [
+        { "code": "B-01", "name": "Jakarta Kota" },
+        { "code": "B-02", "name": "Jayakarta" },
+        { "code": "B-03", "name": "Mangga Besar" },
+        { "code": "B-04", "name": "Sawah Besar" },
+        { "code": "B-05", "name": "Juanda" },
+        { "code": "B-06", "name": "Gondangdia" },
+        { "code": "B-07", "name": "Cikini" },
+        { "code": "B-08", "name": "Manggarai" },
+        { "code": "B-09", "name": "Tebet" },
+        { "code": "B-10", "name": "Cawang" },
+        { "code": "B-11", "name": "Duren Kalibata" },
+        { "code": "B-12", "name": "Pasar Minggu Baru" },
+        { "code": "B-13", "name": "Pasar Minggu" },
+        { "code": "B-14", "name": "Tanjung Barat" },
+        { "code": "B-15", "name": "Lenteng Agung" },
+        { "code": "B-16", "name": "Universitas Pancasila" },
+        { "code": "B-17", "name": "Universitas Indonesia" },
+        { "code": "B-18", "name": "Pondok Cina" },
+        { "code": "B-19", "name": "Depok Baru" },
+        { "code": "B-20", "name": "Depok" },
+        { "code": "B-21", "name": "Citayam" },
+        { "code": "B-22", "name": "Bojong Gede" },
+        { "code": "B-23", "name": "Cilebut" },
+        { "code": "B-24", "name": "Bogor" }
+      ]
+    },
+    {
+      "id": "C",
+      "mode": "commuter",
+      "operator": "KAI Commuter",
+      "name": { "id": "KRL Lin Lingkar Cikarang", "en": "Commuter Rail Cikarang Loop Line" },
+      "color": "#00A2E9",
+      "stations": [
+        { "code": "C-01", "name": "Cikarang" },
+        { "code": "C-02", "name": "Metland Telagamurni" },
+        { "code": "C-03", "name": "Cibitung" },
+        { "code": "C-04", "name": "Tambun" },
+        { "code": "C-05", "name": "Bekasi Timur" },
+        { "code": "C-06", "name": "Bekasi" },
+        { "code": "C-07", "name": "Kranji" },
+        { "code": "C-08", "name": "Cakung" },
+        { "code": "C-09", "name": "Klender Baru" },
+        { "code": "C-10", "name": "Buaran" },
+        { "code": "C-11", "name": "Klender" },
+        { "code": "C-12", "name": "Jatinegara" },
+        { "code": "C-13", "name": "Matraman" },
+        { "code": "C-14", "name": "Manggarai" },
+        { "code": "C-15", "name": "Sudirman" },
+        { "code": "C-16", "name": "Karet" },
+        { "code": "C-17", "name": "Tanah Abang" },
+        { "code": "C-18", "name": "Duri" },
+        { "code": "C-19", "name": "Angke" },
+        { "code": "C-20", "name": "Kampung Bandan" }
+      ]
+    },
+    {
+      "id": "R",
+      "mode": "commuter",
+      "operator": "KAI Commuter",
+      "name": { "id": "KRL Lin Rangkasbitung", "en": "Commuter Rail Rangkasbitung Line" },
+      "color": "#00A651",
+      "stations": [
+        { "code": "R-01", "name": "Tanah Abang" },
+        { "code": "R-02", "name": "Palmerah" },
+        { "code": "R-03", "name": "Kebayoran" },
+        { "code": "R-04", "name": "Pondok Ranji" },
+        { "code": "R-05", "name": "Jurangmangu" },
+        { "code": "R-06", "name": "Sudimara" },
+        { "code": "R-07", "name": "Rawa Buntu" },
+        { "code": "R-08", "name": "Serpong" },
+        { "code": "R-09", "name": "Cisauk" },
+        { "code": "R-10", "name": "Cicayur" },
+        { "code": "R-11", "name": "Jatake" },
+        { "code": "R-12", "name": "Parung Panjang" },
+        { "code": "R-13", "name": "Cilejit" },
+        { "code": "R-14", "name": "Daru" },
+        { "code": "R-15", "name": "Tenjo" },
+        { "code": "R-16", "name": "Tigaraksa" },
+        { "code": "R-17", "name": "Cikoya" },
+        { "code": "R-18", "name": "Maja" },
+        { "code": "R-19", "name": "Citeras" },
+        { "code": "R-20", "name": "Rangkasbitung" }
+      ]
+    },
+    {
+      "id": "T",
+      "mode": "commuter",
+      "operator": "KAI Commuter",
+      "name": { "id": "KRL Lin Tangerang", "en": "Commuter Rail Tangerang Line" },
+      "color": "#8D5B2D",
+      "stations": [
+        { "code": "T-01", "name": "Duri" },
+        { "code": "T-02", "name": "Grogol" },
+        { "code": "T-03", "name": "Pesing" },
+        { "code": "T-04", "name": "Taman Kota" },
+        { "code": "T-05", "name": "Bojong Indah" },
+        { "code": "T-06", "name": "Rawa Buaya" },
+        { "code": "T-07", "name": "Kalideres" },
+        { "code": "T-08", "name": "Poris" },
+        { "code": "T-09", "name": "Batu Ceper" },
+        { "code": "T-10", "name": "Tanah Tinggi" },
+        { "code": "T-11", "name": "Tangerang" }
+      ]
+    },
+    {
+      "id": "TP",
+      "mode": "commuter",
+      "operator": "KAI Commuter",
+      "name": { "id": "KRL Lin Tanjung Priok", "en": "Commuter Rail Tanjung Priok Line" },
+      "color": "#EC008C",
+      "stations": [
+        { "code": "TP-01", "name": "Jakarta Kota" },
+        { "code": "TP-02", "name": "Kampung Bandan" },
+        { "code": "TP-03", "name": "Ancol" },
+        { "code": "TP-04", "name": "Tanjung Priok", "osmName": "Tanjung Priuk" }
+      ]
+    },
+    {
+      "id": "A",
+      "mode": "airport",
+      "operator": "KAI Commuter",
+      "name": { "id": "KA Bandara Lin Soekarno-Hatta", "en": "Airport Rail Soekarno-Hatta Line" },
+      "color": "#6E6E73",
+      "stations": [
+        { "code": "A-06", "name": "Manggarai" },
+        { "code": "A-05", "name": "BNI City" },
+        { "code": "A-04", "name": "Duri" },
+        { "code": "A-03", "name": "Rawa Buaya" },
+        { "code": "A-02", "name": "Batu Ceper" },
+        { "code": "A-01", "name": "Soekarno-Hatta", "osmName": "Bandara Soekarno" }
+      ]
+    }
+  ]
+}

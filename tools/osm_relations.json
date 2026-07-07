@@ -1,0 +1,15 @@
+{
+  "comment": "Relation ID OpenStreetMap per jalur (satu arah per jalur). Ditemukan via discover_relations.py, di-pin manual supaya stabil.",
+  "relations": {
+    "M": 9677669,
+    "S": 10693119,
+    "CB": 16036440,
+    "BK": 16079479,
+    "B": 16877210,
+    "C": 15094545,
+    "R": 15094546,
+    "T": 17193463,
+    "TP": 17193008,
+    "A": 17675695
+  }
+}

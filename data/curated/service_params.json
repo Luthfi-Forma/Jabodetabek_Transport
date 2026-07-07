@@ -1,0 +1,175 @@
+{
+  "comment": "Parameter layanan per jalur untuk generator jadwal (build_timetables.py). Waktu format HH:MM (WIB), headwaySec = jarak antar keberangkatan. Angka didekati dari pola operasi resmi 2026; bisa disetel kapan saja lalu jalankan ulang generatornya.",
+  "lines": {
+    "M": {
+      "avgSpeedKmh": 45,
+      "dwellSec": 30,
+      "weekday": {
+        "first": "05:00",
+        "last": "24:00",
+        "headways": [
+          { "from": "05:00", "to": "09:00", "sec": 300 },
+          { "from": "09:00", "to": "16:00", "sec": 600 },
+          { "from": "16:00", "to": "19:00", "sec": 300 },
+          { "from": "19:00", "to": "24:00", "sec": 600 }
+        ]
+      },
+      "weekend": {
+        "first": "05:00",
+        "last": "24:00",
+        "headways": [{ "from": "05:00", "to": "24:00", "sec": 600 }]
+      }
+    },
+    "S": {
+      "avgSpeedKmh": 35,
+      "dwellSec": 30,
+      "weekday": {
+        "first": "05:30",
+        "last": "23:00",
+        "headways": [{ "from": "05:30", "to": "23:00", "sec": 600 }]
+      },
+      "weekend": {
+        "first": "05:30",
+        "last": "23:00",
+        "headways": [{ "from": "05:30", "to": "23:00", "sec": 720 }]
+      }
+    },
+    "CB": {
+      "avgSpeedKmh": 45,
+      "dwellSec": 30,
+      "weekday": {
+        "first": "05:00",
+        "last": "23:00",
+        "headways": [
+          { "from": "05:00", "to": "09:00", "sec": 420 },
+          { "from": "09:00", "to": "16:00", "sec": 780 },
+          { "from": "16:00", "to": "19:00", "sec": 420 },
+          { "from": "19:00", "to": "23:00", "sec": 780 }
+        ]
+      },
+      "weekend": {
+        "first": "05:00",
+        "last": "23:00",
+        "headways": [{ "from": "05:00", "to": "23:00", "sec": 780 }]
+      }
+    },
+    "BK": {
+      "avgSpeedKmh": 45,
+      "dwellSec": 30,
+      "weekday": {
+        "first": "05:00",
+        "last": "23:00",
+        "headways": [
+          { "from": "05:00", "to": "09:00", "sec": 420 },
+          { "from": "09:00", "to": "16:00", "sec": 780 },
+          { "from": "16:00", "to": "19:00", "sec": 420 },
+          { "from": "19:00", "to": "23:00", "sec": 780 }
+        ]
+      },
+      "weekend": {
+        "first": "05:00",
+        "last": "23:00",
+        "headways": [{ "from": "05:00", "to": "23:00", "sec": 780 }]
+      }
+    },
+    "B": {
+      "avgSpeedKmh": 45,
+      "dwellSec": 40,
+      "weekday": {
+        "first": "04:00",
+        "last": "23:30",
+        "headways": [
+          { "from": "04:00", "to": "09:00", "sec": 450 },
+          { "from": "09:00", "to": "15:00", "sec": 720 },
+          { "from": "15:00", "to": "19:30", "sec": 450 },
+          { "from": "19:30", "to": "23:30", "sec": 720 }
+        ]
+      },
+      "weekend": {
+        "first": "04:00",
+        "last": "23:30",
+        "headways": [{ "from": "04:00", "to": "23:30", "sec": 600 }]
+      }
+    },
+    "C": {
+      "avgSpeedKmh": 45,
+      "dwellSec": 40,
+      "weekday": {
+        "first": "04:00",
+        "last": "23:00",
+        "headways": [
+          { "from": "04:00", "to": "09:00", "sec": 600 },
+          { "from": "09:00", "to": "15:00", "sec": 900 },
+          { "from": "15:00", "to": "19:30", "sec": 600 },
+          { "from": "19:30", "to": "23:00", "sec": 900 }
+        ]
+      },
+      "weekend": {
+        "first": "04:00",
+        "last": "23:00",
+        "headways": [{ "from": "04:00", "to": "23:00", "sec": 900 }]
+      }
+    },
+    "R": {
+      "avgSpeedKmh": 50,
+      "dwellSec": 40,
+      "weekday": {
+        "first": "04:00",
+        "last": "23:00",
+        "headways": [
+          { "from": "04:00", "to": "09:00", "sec": 600 },
+          { "from": "09:00", "to": "15:00", "sec": 1080 },
+          { "from": "15:00", "to": "19:30", "sec": 600 },
+          { "from": "19:30", "to": "23:00", "sec": 1080 }
+        ]
+      },
+      "weekend": {
+        "first": "04:00",
+        "last": "23:00",
+        "headways": [{ "from": "04:00", "to": "23:00", "sec": 900 }]
+      }
+    },
+    "T": {
+      "avgSpeedKmh": 45,
+      "dwellSec": 30,
+      "weekday": {
+        "first": "04:30",
+        "last": "23:30",
+        "headways": [{ "from": "04:30", "to": "23:30", "sec": 1200 }]
+      },
+      "weekend": {
+        "first": "04:30",
+        "last": "23:30",
+        "headways": [{ "from": "04:30", "to": "23:30", "sec": 1200 }]
+      }
+    },
+    "TP": {
+      "avgSpeedKmh": 40,
+      "dwellSec": 60,
+      "weekday": {
+        "first": "05:00",
+        "last": "22:00",
+        "headways": [{ "from": "05:00", "to": "22:00", "sec": 1800 }]
+      },
+      "weekend": {
+        "first": "05:00",
+        "last": "22:00",
+        "headways": [{ "from": "05:00", "to": "22:00", "sec": 1800 }]
+      }
+    },
+    "A": {
+      "avgSpeedKmh": 60,
+      "dwellSec": 60,
+      "weekday": {
+        "first": "05:00",
+        "last": "23:00",
+        "headways": [{ "from": "05:00", "to": "23:00", "sec": 1800 }]
+      },
+      "weekend": {
+        "first": "05:00",
+        "last": "23:00",
+        "headways": [{ "from": "05:00", "to": "23:00", "sec": 1800 }]
+      }
+    }
+  }
+}
